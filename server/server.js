@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const Mongoose = require('mongoose');
 const Net = require('net');
 const dotenv = require('dotenv').config();
-
+//ok cool
 // Global variables
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
 //checker if train is growing
