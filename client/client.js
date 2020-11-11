@@ -2,13 +2,13 @@ const Net = require('net');
 const puppeteer = require('puppeteer');
 
 const port = 8080;
-const host = 'localhost';
+const host = 'localhost'; //"192.168.3.116"//
 
 const client = new Net.Socket();
 
 client.connect({
   port: port,
-  host: "localhost"
+  host: host 
 }, () => {
   console.log('Connection established');
 });
@@ -24,8 +24,9 @@ client.on('error', (error) => {
 client.on('close', (error) => {
   console.log('Connection closed');
 });
-client.write("1,000,500");
-/*(async () => {
+
+
+(async () => {
   let browser;
   if(process.platform == "win32"){
       browser = await puppeteer.launch({
@@ -49,13 +50,13 @@ client.write("1,000,500");
     });
     setInterval(async () => {
       const value = await page.$eval('.ht-progress-bubble', e => e.firstElementChild.firstElementChild.innerText);
-      client.write(await value);
-    }, 250);
+      client.write(await valuereplace(/[.,]/g,""));
+    }, 500);
   } catch (error) {
     console.log('[ERROR]> ' + error);
   }
 })();
-*/
+
 /*
 setInterval(async () => {
     let value = await page.evaluate(() => {

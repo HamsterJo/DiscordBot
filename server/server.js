@@ -44,7 +44,7 @@ var ServerSchema = new Schema({
   "server_id": String,
   "channel_id": String,
   "server_role": String,
-  "bigTrainMessage": Boolean
+  "bigTrainMessage": Object
 });
 
 var ServerModel = Mongoose.model('server', ServerSchema);
@@ -53,8 +53,9 @@ function updateServers() {
   servers = [];
   ServerModel.find({}, (err, result) => {
     if (err) throw err;
-    result.forEach((res) => {
-      servers.push(res);
+    result.forEach((res, index) => {
+      //if (index == 0)
+        servers.push(res);
     })
   });
 }
@@ -111,13 +112,14 @@ let server = Net.createServer(socket => {
       // transform from byte to string
       train_data_str = data.toString();
       // transform from 1,000 to 1000
-      train_data_int = parseInt(train_data_str.split(",").join(""));
+      train_data_int = parseInt(train_data_str);
 
       // check if train ended and reset train message
       if (train_data_int <= 1000) {
         servers.forEach(info => {
-          info.bigTrainMessage = false;
+          info.bigTrainMessage = {};
         });
+
         bigTrain100k = false;
         bigTrain250k = false;
         bigTrain500k = false;
@@ -127,24 +129,24 @@ let server = Net.createServer(socket => {
 
       // send a message to every server
       servers.forEach(info => {
-        if (info.bigTrainMessage) {
+        if (Object.keys(info.bigTrainMessage).length !== 0) {
           if (!bigTrain100k && train_data_int > 100000) {
-            editTrainMessage(info, train_data_str);
+            editTrainMessage(info, train_data_int);
             bigTrain100k = true;
             return;
           }
           if (!bigTrain250k && train_data_int > 250000) {
-            editTrainMessage(info, train_data_str);
+            editTrainMessage(info, train_data_int);
             bigTrain250k = true;
             return;
           }
           if (!bigTrain500k && train_data_int > 500000) {
-            editTrainMessage(info, train_data_str);
+            editTrainMessage(info, train_data_int);
             bigTrain500k = true;
             return;
           }
           if (!bigTrain1m && train_data_int > 1000000) {
-            editTrainMessage(info, train_data_str);
+            editTrainMessage(info, train_data_int);
             bigTrain1m = true;
             return;
           }
@@ -154,17 +156,21 @@ let server = Net.createServer(socket => {
       // send the train message if train is big
       if (train_data_int > 50000 && !train_send) {
         servers.forEach(info => {
-          client.channels.fetch(info.channel_id.toString()).then(async channel => info.bigTrainMessage = await channel.send({
-            embed: {
-              color: '#008E44',
-              "fields": [{
-                "name": "Train",
-                "value": `${client.guilds.cache.get(info.server_id).roles.cache.get(info.server_role)} The Train has over **${train_data_str}** Bux`
-              }],
-              timestamp: new Date()
-            }
-          }));
+          client.channels.fetch(info.channel_id).then(async (channel) => {
+            info.bigTrainMessage = await channel.send({
+              embed: {
+                color: '#008E44',
+                "fields": [{
+                  "name": "Train",
+                  "value": `The Train has over **${numberWithCommas(train_data_int)}** Bux`
+                }],
+                timestamp: new Date()
+              }
+            });
+            channel.send(`${client.guilds.cache.get(info.server_id).roles.cache.get(info.server_role)}`);
+          });
         });
+
         train_send = true;
       }
     } catch (error) {
@@ -219,7 +225,7 @@ client.on('message', async (message) => {
           color: '#008E44',
           "fields": [{
             "name": "Train",
-            "value": `The Train is at **${train_data_str}** Bux`
+            "value": `The Train is at **${numberWithCommas(train_data_int)}** Bux`
           }]
         }
       });
@@ -283,11 +289,15 @@ function editTrainMessage(info, train_data) {
       color: '#008E44',
       "fields": [{
         "name": "Train",
-        "value": `${message.member.guild.roles.cache.get(info.server_role)} The Train has over **${train_data}** Bux`
+        "value": `The Train has over **${numberWithCommas(train_data)}** Bux`
       }],
       timestamp: new Date()
     }
   });
+}
+
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 // Client Token for Discord Bot
