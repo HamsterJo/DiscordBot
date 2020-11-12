@@ -24,8 +24,7 @@ client.on('error', (error) => {
 client.on('close', (error) => {
   console.log('Connection closed');
 });
-client.write("1337.1337");
-/*
+
 (async () => {
   let browser;
   if (process.platform == "win32") {
@@ -64,7 +63,7 @@ client.write("1337.1337");
     console.log('[ERROR]> ' + error);
   }
 })();
-*/
+
 /*
 setInterval(async () => {
     let value = await page.evaluate(() => {
