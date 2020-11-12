@@ -54,7 +54,10 @@ function updateServers() {
   ServerModel.find({}, (err, result) => {
     if (err) throw err;
     result.forEach((res, index) => {
-      //if (index == 0)
+      if (process.platform == "win32") {
+        if (index == 0)
+          servers.push(res);
+      } else
         servers.push(res);
     })
   });
@@ -112,6 +115,23 @@ let server = Net.createServer(socket => {
       // transform from byte to string
       train_data_str = data.toString();
       // transform from 1,000 to 1000
+
+      let isWrong = false;
+      let values = [];
+
+      values.push(train_data_str.match(/.{1,3}/g));
+      values.push(train_data_str.match(/.{1,4}/g));
+      values.push(train_data_str.match(/.{1,5}/g));
+      values.push(train_data_str.match(/.{1,6}/g));
+
+      values.forEach(el => {
+        if (el[0] == el[1])
+          isWrong = true;
+      })
+      if (isWrong) {
+        console.log("> " + train_data_str);
+        return
+      };
       train_data_int = parseInt(train_data_str);
 
       // check if train ended and reset train message

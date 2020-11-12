@@ -8,7 +8,7 @@ const client = new Net.Socket();
 
 client.connect({
   port: port,
-  host: host 
+  host: host
 }, () => {
   console.log('Connection established');
 });
@@ -24,14 +24,14 @@ client.on('error', (error) => {
 client.on('close', (error) => {
   console.log('Connection closed');
 });
-
-
+client.write("1337.1337");
+/*
 (async () => {
   let browser;
-  if(process.platform == "win32"){
-      browser = await puppeteer.launch({
-    headless: true
-  });
+  if (process.platform == "win32") {
+    browser = await puppeteer.launch({
+      headless: true
+    });
   } else {
     browser = await puppeteer.launch({
       headless: true,
@@ -40,23 +40,31 @@ client.on('close', (error) => {
   }
 
   const page = await browser.newPage();
-  await page.goto('https://csgo500.com');
 
-  console.log('Sending Train value');
-
+  // Configure the navigation timeout
+  //await page.setDefaultNavigationTimeout(0);
   try {
+    await page.goto('https://csgo500.com', {
+      waitUntil: 'load',
+      timeout: 0
+    });
+
+    console.log('Sending Train value');
+
     await page.waitForSelector('.ht-progress-bubble', {
       timeout: 1000
     });
     setInterval(async () => {
-      const value = await page.$eval('.ht-progress-bubble', e => e.firstElementChild.firstElementChild.innerText);
-      client.write(await valuereplace(/[.,]/g,""));
+      let value = 0;
+      value = await page.$eval('.ht-progress-bubble', e => e.firstElementChild.firstElementChild.innerText);
+      client.write(await value.replace(/[.,]/g, ""));
+      //console.log(await value.replace(/[.,]/g, ""));
     }, 500);
   } catch (error) {
     console.log('[ERROR]> ' + error);
   }
 })();
-
+*/
 /*
 setInterval(async () => {
     let value = await page.evaluate(() => {
