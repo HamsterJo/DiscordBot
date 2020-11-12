@@ -132,6 +132,7 @@ let server = Net.createServer(socket => {
         console.log("> " + train_data_str);
         return
       };
+      
       train_data_int = parseInt(train_data_str);
 
       // check if train ended and reset train message
