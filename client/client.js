@@ -2,7 +2,7 @@ const Net = require('net');
 const puppeteer = require('puppeteer');
 
 const port = 8080;
-const host = 'localhost'; //"192.168.3.116"//
+const host = (process.platform == 'win32')? 'localhost' : "192.168.3.116";
 
 const client = new Net.Socket();
 
@@ -24,6 +24,8 @@ client.on('error', (error) => {
 client.on('close', (error) => {
   console.log('Connection closed');
 });
+
+//client.write('17171717');
 
 (async () => {
   let browser;
@@ -58,7 +60,7 @@ client.on('close', (error) => {
       value = await page.$eval('.ht-progress-bubble', e => e.firstElementChild.firstElementChild.innerText);
       client.write(await value.replace(/[.,]/g, ""));
       //console.log(await value.replace(/[.,]/g, ""));
-    }, 500);
+    }, 2500);
   } catch (error) {
     console.log('[ERROR]> ' + error);
   }

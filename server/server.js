@@ -125,18 +125,18 @@ let server = Net.createServer(socket => {
       values.push(train_data_str.match(/.{1,6}/g));
 
       values.forEach(el => {
-        if (el[0] == el[1])
+        if (el[0] === el[1]) {
           isWrong = true;
-      })
-      if (isWrong) {
-        console.log("> " + train_data_str);
-        return
-      };
-      
+          console.log("> " + el);
+          train_data_str = el[0];
+          return;
+        }
+      });
+
       train_data_int = parseInt(train_data_str);
 
       // check if train ended and reset train message
-      if (train_data_int <= 1000) {
+      if (train_data_int <= 2500) {
         servers.forEach(info => {
           info.bigTrainMessage = {};
         });
@@ -149,30 +149,36 @@ let server = Net.createServer(socket => {
       }
 
       // send a message to every server
-      servers.forEach(info => {
-        if (Object.keys(info.bigTrainMessage).length !== 0) {
-          if (!bigTrain100k && train_data_int > 100000) {
+      if (Object.keys(servers[0].bigTrainMessage).length !== 0) {
+        if (!bigTrain100k && train_data_int > 100000) {
+          servers.forEach(info => {
             editTrainMessage(info, train_data_int);
             bigTrain100k = true;
-            return;
-          }
-          if (!bigTrain250k && train_data_int > 250000) {
+          });
+          return;
+        }
+        if (!bigTrain250k && train_data_int > 250000) {
+          servers.forEach(info => {
             editTrainMessage(info, train_data_int);
             bigTrain250k = true;
-            return;
-          }
-          if (!bigTrain500k && train_data_int > 500000) {
+          });
+          return;
+        }
+        if (!bigTrain500k && train_data_int > 500000) {
+          servers.forEach(info => {
             editTrainMessage(info, train_data_int);
             bigTrain500k = true;
-            return;
-          }
-          if (!bigTrain1m && train_data_int > 1000000) {
+          });
+          return;
+        }
+        if (!bigTrain1m && train_data_int > 1000000) {
+          servers.forEach(info => {
             editTrainMessage(info, train_data_int);
             bigTrain1m = true;
-            return;
-          }
-        };
-      });
+          });
+          return;
+        }
+      };
 
       // send the train message if train is big
       if (train_data_int > 50000 && !train_send) {
